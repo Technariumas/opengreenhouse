@@ -18,6 +18,10 @@ SERIAL_RATE = 115200
 HTTP_HOST = '127.0.0.1'
 HTTP_PORT = 8000
 
+WINDOW_OPEN_POSITION = 0
+WINDOW_CLOSED_POSITION = 1000
+WIND_THRESHOLD = 200
+
 ROOT = os.path.dirname(os.path.realpath(__file__))
 WEBROOT = os.path.join(ROOT, "webroot")
 
@@ -37,6 +41,12 @@ class Arduino:
     def log_value(self, key, value):
         with open(self.log_filename(key), "a") as f:
             f.write("{} {}\n".format(time.time(), value))
+
+    def handle(self):
+        if self.state['wind'] > WIND_THRESHOLD:
+            self.put('window', 0)
+        else:
+            self.put('window', 100)
 
     def interact(self):
         if not self.mock:
@@ -62,19 +72,28 @@ class Arduino:
             else:
                 line = serial.readline()
             key, value = line.decode('ascii').strip().split(' ')
-            value = int(value)
+            value = self.from_arduino(int(value))
             self.log_value(key, value)
             self.state[key] = value
+            self.handle()
             self.recvq.put((key, value))
 
     def start(self):
         self.thread.start()
 
+    def from_arduino(self, key, value):
+        if key == 'window':
+            return int(100 * (value - WINDOW_CLOSED_POSITION) / (WINDOW_OPEN_POSITION - WINDOW_CLOSED_POSITION))
+
+    def to_arduino(self, key, value):
+        if key == 'window':
+            return int((WINDOW_OPEN_POSITION - WINDOW_CLOSED_POSITION) * value / 100) + WINDOW_CLOSED_POSITION
+
     def get(self, key):
         return self.state.get(key, None)
 
-    def set(self, key, value):
-        self.sendq.put("{} {}".format(key, int(value)))
+    def put(self, key, value):
+        self.sendq.put("{} {}".format(key, self.to_arduino(value)))
         return value
 
     def timeseries(self, name, start, end=None, resolution=None):
@@ -139,7 +158,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 else:
                     try:
                         value = int(params['value'])
-                        return self.ok(ARDUINO.set(name, value))
+                        return self.ok(ARDUINO.put(name, value))
                     except KeyError as e:
                         return self.error(400, "No value given.")
                     except ValueError as e:
