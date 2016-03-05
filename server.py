@@ -6,6 +6,7 @@ import urllib.parse
 import numpy
 import pandas
 from serial import Serial
+from serial.serialutil import SerialException
 import time
 from threading import Thread
 from queue import Queue, Empty
@@ -39,7 +40,11 @@ class Arduino:
 
     def interact(self):
         if not self.mock:
-            serial = Serial(SERIAL_DEVICE, SERIAL_RATE)
+            try:
+                serial = Serial(SERIAL_DEVICE, SERIAL_RATE)
+            except SerialException:
+                print("Error opening serial. To use without arduino: ./server.py --mock")
+                os._exit(1)
         while True:
             try:
                 while True:
@@ -153,7 +158,10 @@ def main():
     httpd = http.server.HTTPServer((HTTP_HOST, HTTP_PORT), Handler)
     print("Serving on http://0.0.0.0:8000")
     ARDUINO.start()
-    httpd.serve_forever()
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        os._exit(1)
 
 
 if __name__ == "__main__":
