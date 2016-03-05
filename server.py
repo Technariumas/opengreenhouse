@@ -105,10 +105,11 @@ class Arduino:
         end = float(end)
 
         log = pandas.read_csv(self.log_filename(name), sep=' ', names=('time', 'value'))
+        log = log[(start <= log.time) & (log.time <= end)]
         value = log.value
         value.index = pandas.to_datetime(log.time, unit='s')
-        if resolution is not None:
-            value = value.resample('{}s'.format(resolution))
+        if len(value) and resolution is not None:
+            value = value.resample('{}s'.format(resolution)).dropna()
 
         return {
             'time': [t.timestamp() for t in value.index],
