@@ -1,6 +1,7 @@
 function Initialize()
 {
 	UpdateSensorsList();
+	// continuousUpdateWebCam();
 }
 
 function queryData(name, start, end, resolution, callback)
@@ -100,7 +101,7 @@ function UpdateSensorsList()
 			sensorCombobox.innerHTML = ""; //delete all sensor options
 			gSensorsList.length = 0;
 
-			var temp = '{"ok": true,"value": [{"temp": "Temperature"},{"humidity":"Humidity"}]}';
+			var temp = '{"ok": true,"value": [{"temp": "Temperature"},{"humidity":"Humidity"},{"wind":"Wind speed"}]}';
 			xmlHttp.responseText = temp;
 
 
@@ -132,7 +133,14 @@ function UpdateSensorsList()
 					var chartElement = createChart(sensorStruct.chartId);
 					plotsContainer.appendChild(chartElement);
 
-					var widget = createWidget(sensorStruct.name+"Widget", "images/temperatureIcon.png");
+					var widget;
+					if(sensorStruct.name == "temp")
+						widget = createWidget(sensorStruct.name+"Widget", "images/temperatureIcon.png");
+					if(sensorStruct.name == "humidity")
+						widget = createWidget(sensorStruct.name+"Widget", "images/humidityIcon.png");
+					if(sensorStruct.name == "wind")
+						widget = createWidget(sensorStruct.name+"Widget", "images/windIcon.png");
+					
 					widgetsContainer.appendChild(widget);
 				}
 			}
@@ -168,5 +176,5 @@ function continuousUpdateWebCam()
 {
 	var frame = document.getElementById("webCamFrame");
 	frame.src = "images/videoPlayer.jpeg?"+Date.now();
-	setTimeout(continuousUpdate, 1000);
+	setTimeout(continuousUpdateWebCam, 1000);
 }
