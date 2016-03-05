@@ -27,18 +27,21 @@ _ts_ – UNIX timestampai. _resolution_ – sekundėmis, nurodyti nebūtina (def
 Sensorių pavadinimai:
 * _temp_ – oro temperatūra, laipsniais C.
 * _humidity_ – dirvos drėgnumas, abstrakčiais vienetais.
+* _light_ – apšviestumas, abstrakčiais vienetais
 * _wind_ – vėjo greitis, enkoderio tikais per sekundę (600 per apsisukimą)
 
 
 ## Valdymo parametrai
 
-* Dabartinė lango pozicija, steperio žingsniais:
+* Dabartinė lango/durų pozicija, steperio žingsniais:
 
         GET /rpc/window/
+        GET /rpc/door/
 
-* Sukti lango motorą į poziciją _pos_:
+* Sukti lango/durų motorą į poziciją _pos_:
 
         PUT /rpc/window/?value=<pos>
+        PUT /rpc/door/?value=<pos>
 
 * Kiek sekundžių liko laistyti:
 

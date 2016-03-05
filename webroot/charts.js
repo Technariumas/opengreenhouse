@@ -6,6 +6,9 @@ function fillChartData(chartId, data)
 
 	obj = JSON.parse(data);
 
+	if(obj == undefined)
+		return;
+
 	var time = obj.value.time;
 	var value = obj.value.value;
 
