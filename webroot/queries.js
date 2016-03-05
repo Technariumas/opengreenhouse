@@ -1,7 +1,7 @@
 function Initialize()
 {
 	UpdateSensorsList();
-	// continuousUpdateWebCam();
+	continuousUpdateWebCam();
 }
 
 function queryData(name, start, end, resolution, callback)
@@ -177,6 +177,6 @@ function continuousUpdate()
 function continuousUpdateWebCam()
 {
 	var frame = document.getElementById("webCamFrame");
-	frame.src = "images/videoPlayer.jpeg?"+Date.now();
+	frame.src = "camera/snap.jpg?"+Date.now();
 	setTimeout(continuousUpdateWebCam, 1000);
 }
