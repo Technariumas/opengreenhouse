@@ -3,10 +3,10 @@
 #include <TimerOne.h>
 #include <SerialCommand.h>
 
-int winDirPin = 4;
-int winStepPin = 5;
-int doorDirPin = 6;
-int doorStepPin = 7;
+int doorDirPin = 4;
+int doorStepPin = 5;
+int winDirPin = 6;
+int winStepPin = 7;
 int pumpPin = 9;
 int timerPeriod = 15000; // microseconds
 volatile int windowTarget = 0;
