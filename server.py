@@ -9,6 +9,7 @@ from serial import Serial
 import time
 from threading import Thread
 from queue import Queue, Empty
+import sys
 
 
 SERIAL_DEVICE = "/dev/arduino"
@@ -21,7 +22,8 @@ WEBROOT = os.path.join(ROOT, "webroot")
 
 
 class Arduino:
-    def __init__(self):
+    def __init__(self, mock):
+        self.mock = mock
         self.pipe = None
         self.thread = Thread(target=self.interact)
         self.sendq = Queue()
@@ -36,18 +38,25 @@ class Arduino:
             f.write("{} {}\n".format(time.time(), value))
 
     def interact(self):
-        serial = Serial(SERIAL_DEVICE, SERIAL_RATE)
+        if not self.mock:
+            serial = Serial(SERIAL_DEVICE, SERIAL_RATE)
         while True:
             try:
                 while True:
                     cmd = self.sendq.get(block=False)
-                    serial.write(cmd.encode('ascii'))
-                    serial.write(b'\n')
+                    if self.mock:
+                        print("SERIAL WRITE:", cmd)
+                    else:
+                        serial.write(cmd.encode('ascii'))
+                        serial.write(b'\n')
             except Empty:
                 pass
-            line = serial.readline()
+            if self.mock:
+                time.sleep(1)
+                line = b'temp 18\n'
+            else:
+                line = serial.readline()
             key, value = line.decode('ascii').strip().split(' ')
-            #key, value = 'temp 18'.split(' ')
             value = int(value)
             self.log_value(key, value)
             self.state[key] = value
@@ -83,7 +92,7 @@ class Arduino:
 
 
 
-ARDUINO = Arduino()
+ARDUINO = Arduino(mock='--mock' in sys.argv)
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def respond(self, code, value):
