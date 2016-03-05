@@ -3,6 +3,7 @@
 	width: 10%;
 	height: 300;
 	float: left;
+	margin-right: 5%;
 }
 
 .momentValueWidget > img
@@ -15,6 +16,8 @@
 .momentValueWidget > .sensorValue
 {
 	float: left;
+	font-size: 30px;
+	margin-top: 15px;
 }
 
 .PageHeader > h1
