@@ -101,7 +101,7 @@ function UpdateSensorsList()
 			sensorCombobox.innerHTML = ""; //delete all sensor options
 			gSensorsList.length = 0;
 
-			var temp = '{"ok": true,"value": [{"temp": "Temperature"},{"humidity":"Humidity"},{"wind":"Wind speed"}]}';
+			var temp = '{"ok": true,"value": [{"temp": "Temperature"},{"humidity":"Humidity"},{"wind":"Wind speed"},{"light":"Lighting"}]}';
 			xmlHttp.responseText = temp;
 
 
@@ -140,6 +140,8 @@ function UpdateSensorsList()
 						widget = createWidget(sensorStruct.name+"Widget", "images/humidityIcon.png");
 					if(sensorStruct.name == "wind")
 						widget = createWidget(sensorStruct.name+"Widget", "images/windIcon.png");
+					if(sensorStruct.name == "light")
+						widget = createWidget(sensorStruct.name+"Widget", "images/lightIcon.png");
 					
 					widgetsContainer.appendChild(widget);
 				}
