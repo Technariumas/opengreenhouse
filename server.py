@@ -11,7 +11,7 @@ from threading import Thread
 from queue import Queue, Empty
 
 
-SERIAL_DEVICE = "/dev/ttyUSB1"
+SERIAL_DEVICE = "/dev/arduino"
 SERIAL_RATE = 112500
 HTTP_HOST = '127.0.0.1'
 HTTP_PORT = 8000
