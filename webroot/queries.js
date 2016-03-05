@@ -5,12 +5,12 @@ function Initialize()
 
 function queryData(name, start, end, resolution, callback)
 {
-	var command = "rpc/sensor/?name="+name+"&start="+start+"&end="+end+"&resolution="+resolution;
+	var command = "rpc/series/"+name+"/?start="+start+"&end="+end+"&resolution="+resolution;
 
 	var xmlHttp = null;
     xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", g_ServerURL+'/'+command, true);
-    xmlHttp.send("");	
+    xmlHttp.send("");
 	xmlHttp.onreadystatechange = function(e) 
 	{
 		if ( xmlHttp.readyState === 4 ) 
@@ -58,7 +58,7 @@ function runQuery()
 				values = JSON.parse(data);
 				numbers = values.value.value;
 				var lastValue = numbers[numbers.length-1];
-				setWidgetValue("tempWidget", lastValue)
+				setWidgetValue(gSensorsList[index].name+"Widget", lastValue)
 				
 				});			
 			break;
@@ -100,7 +100,7 @@ function UpdateSensorsList()
 			sensorCombobox.innerHTML = ""; //delete all sensor options
 			gSensorsList.length = 0;
 
-			var temp = '{"ok": true,"value": [{"temp": "Random temperature"},{"airHumidity":"Air humidity"}]}';
+			var temp = '{"ok": true,"value": [{"temp": "Temperature"},{"humidity":"Humidity"}]}';
 			xmlHttp.responseText = temp;
 
 
@@ -157,9 +157,16 @@ function continuousUpdate()
 			values = JSON.parse(data);
 			numbers = values.value.value;
 			var lastValue = numbers[numbers.length-1];
-			setWidgetValue("tempWidget", lastValue)
+			setWidgetValue(gSensorsList[index].name+"Widget", lastValue)
 			
 			});
 	}
 	setTimeout(continuousUpdate, 500);
+}
+
+function continuousUpdateWebCam()
+{
+	var frame = document.getElementById("webCamFrame");
+	frame.src = "images/videoPlayer.jpeg?"+Date.now();
+	setTimeout(continuousUpdate, 1000);
 }
