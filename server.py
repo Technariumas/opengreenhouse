@@ -43,9 +43,9 @@ class Arduino:
             f.write("{} {}\n".format(time.time(), value))
 
     def handle(self):
-        if self.state['wind'] > WIND_THRESHOLD:
+        if self.state.get('wind', 0) > WIND_THRESHOLD:
             self.put('window', 0)
-        else:
+        elif self.state.get('window', 100) != 100:
             self.put('window', 100)
 
     def interact(self):
@@ -72,7 +72,7 @@ class Arduino:
             else:
                 line = serial.readline()
             key, value = line.decode('ascii').strip().split(' ')
-            value = self.from_arduino(int(value))
+            value = self.from_arduino(key, int(value))
             self.log_value(key, value)
             self.state[key] = value
             self.handle()
@@ -84,16 +84,18 @@ class Arduino:
     def from_arduino(self, key, value):
         if key == 'window':
             return int(100 * (value - WINDOW_CLOSED_POSITION) / (WINDOW_OPEN_POSITION - WINDOW_CLOSED_POSITION))
+        return int(value)
 
     def to_arduino(self, key, value):
         if key == 'window':
             return int((WINDOW_OPEN_POSITION - WINDOW_CLOSED_POSITION) * value / 100) + WINDOW_CLOSED_POSITION
+        return int(value)
 
     def get(self, key):
         return self.state.get(key, None)
 
     def put(self, key, value):
-        self.sendq.put("{} {}".format(key, self.to_arduino(value)))
+        self.sendq.put("{} {}".format(key, self.to_arduino(key, value)))
         return value
 
     def timeseries(self, name, start, end=None, resolution=None):
