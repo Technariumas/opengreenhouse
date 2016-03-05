@@ -4,9 +4,11 @@ import http.server
 import json
 import urllib.parse
 import numpy
-import multiprocessing
-import serial
+import pandas
+from serial import Serial
 import time
+from threading import Thread
+from queue import Queue, Empty
 
 
 SERIAL_DEVICE = "/dev/ttyACM0"
@@ -14,84 +16,75 @@ SERIAL_RATE = 115200
 HTTP_HOST = '127.0.0.1'
 HTTP_PORT = 8000
 
+ROOT = os.path.dirname(os.path.realpath(__file__))
+WEBROOT = os.path.join(ROOT, "webroot")
+
 
 class Arduino:
     def __init__(self):
         self.pipe = None
+        self.thread = Thread(target=self.interact)
+        self.sendq = Queue()
+        self.recvq = Queue()
+        self.state = {}
 
-    def parse_status(self, line):
-        line = line.decode('ascii')
-        status = self.last_status.copy()
-        for kv in line.strip().split(','):
-            yield kv.split(':', 1)
+    def log_filename(self, key):
+        return os.path.join(ROOT, 'log', key)
 
-    def interact(self, pipe):
-        serial = serial.Serial(SERIAL_DEVICE, SERIAL_RATE)
-        while True:
-            try:
-                while self.pipe.poll():
-                    cmd = self.pipe.recv()
-                    line = ' '.join(str(x) for x in cmd)
-                    serial.write(line.encode('ascii'))
-            except Empty:
-                pass
-            line = self.serial.readline()
-            for x in self.parse_status(line):
-                self.pipe.send(x)
+    def log_value(self, key, value):
+        with open(self.log_filename(key), "a") as f:
+            f.write("{} {}\n".format(time.time(), value))
+
+    def interact(self):
+        #serial = Serial(SERIAL_DEVICE, SERIAL_RATE)
+        with open("log", "a") as log:
+            while True:
+                try:
+                    while True:
+                        cmd = self.sendq.get(block=False)
+                        #serial.write(cmd.encode('ascii'))
+                        print("DEBUG COMMAND:", cmd)
+                except Empty:
+                    pass
+                #key, value = serial.readline().split(' ')
+                key, value = 'temp 18'.split(' ')
+                value = int(value)
+                self.log_value(key, value)
+                self.state[key] = value
+                self.recvq.put((key, value))
+                time.sleep(1)
 
     def start(self):
-        self.pipe, child_conn = multiprocessing.Pipe()
-        multiprocessing.Process(target=self.interact, args=(child_conn,))
+        self.thread.start()
 
-    def command(name, *args):
-        assert(self.pipe)
-        self.pipe.send((name,) + args)
+    def get(self, key):
+        return self.state.get(key, None)
+
+    def set(self, key, value):
+        self.sendq.put("{} {}".format(key, int(value)))
+        return value
+
+    def timeseries(self, name, start, end=None, resolution=None):
+        if end is None:
+            end = time.time()
+        start = float(start)
+        end = float(end)
+
+        log = pandas.read_csv(self.log_filename(name), sep=' ', names=('time', 'value'))
+        value = log.value
+        value.index = pandas.to_datetime(log.time, unit='s')
+        if resolution is not None:
+            value = value.resample('{}s'.format(resolution))
+
+        return {
+            'time': [t.timestamp() for t in value.index],
+            'value': [int(x) for x in value],
+        }
+
+
 
 
 ARDUINO = Arduino()
-
-PROCEDURES = {}
-def procedure(fn):
-    PROCEDURES[fn.__name__] = fn
-    return fn
-
-@procedure
-def sensor_list():
-    return [{
-        'temp': 'Random temperature'
-    }]
-
-@procedure
-def sensor(name, start, end=None, resolution=1):
-    if end is None:
-        end = time.time()
-    start = float(start)
-    end = float(end)
-    resolution = float(resolution)
-    time = numpy.arange(start, end, resolution)
-    return {
-        'sensor': name,
-        'time': list(time),
-        'value': list(numpy.random.normal(size=len(time))),
-    }
-
-@procedure
-def set_window(open):
-    ARDUINO.command("window", int(open))
-    return position
-
-@procedure
-def set_door(open):
-    ARDUINO.command("door", int(open))
-    return position
-
-@procedure
-def set_pump(on):
-    ARDUINO.command("pump", int(open))
-    return position
-
-
-WEBROOT = os.path.join(os.path.dirname(os.path.realpath(__file__)), "webroot")
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def respond(self, code, value):
@@ -109,22 +102,39 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         if not self.path.startswith('/rpc/'):
             return super().do_GET()
+        return self.rpc(action='GET')
 
+    def do_PUT(self):
+        if not self.path.startswith('/rpc/'):
+            return super().do_PUT()
+        return self.rpc(action='PUT')
+
+    def rpc(self, action):
         try:
             path = urllib.parse.urlparse(self.path)
             params = dict(urllib.parse.parse_qsl(path.query))
 
             try:
-                procname = path.path.split('/')[2]
-            except IndexError:
-                return self.error(400, "Procedure not specified.")
-            if procname not in PROCEDURES:
-                return self.error(404, "No such procedure: {}".format(procname))
-            try:
-                result = PROCEDURES[procname](**params)
+                components = path.path.strip('/').split('/')
+                name = components[1]
+                if action == "GET":
+                    if name == 'series':
+                        name = components[2]
+                        return self.ok(ARDUINO.timeseries(name, **params))
+                    else:
+                        return self.ok(ARDUINO.get(name))
+                else:
+                    try:
+                        value = int(params['value'])
+                        return self.ok(ARDUINO.set(name, value))
+                    except KeyError as e:
+                        return self.error(400, "No value given.")
+                    except ValueError as e:
+                        return self.error(400, "Invalid number: {}".format(params['value']))
+            except IndexError as e:
+                return self.error(400, "{}".format(e))
             except TypeError as e:
                 return self.error(400, "{}".format(e))
-            return self.ok(result)
         except:
             self.error(501, "Internal server error.")
             raise

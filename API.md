@@ -10,26 +10,24 @@ Jei klaida, grąžina HTTP klaidą ir JSON:
 
     {"ok": false, "error": "priežastis"}
 
-URL formatas:
-
-    /rpc/sensor/?name=temp&start=1&end=10&resolution=1
-
 ## Procedūros
 
-Sensorių sąrašas:
+Grąžina dabartinę parametro _<name>_ reikšmę:
 
-    sensor_list()
+    GET /rpc/<name>/
 
-Gauti sensoriaus parodymų intervale [start,end]:
+Nustato naują reikšmę:
 
-    sensor(name, start, end=now(), resolution=1)
+    PUT /rpc/<name>/?value=<value>
 
-Atidaryti ir uždaryti langą ir duris (`open` gali būti `true` arba `false`):
+Parametro kitimas laike:
 
-    set_window(open)
+    GET /rpc/series/<name>/?start=<ts>&end=<ts>&resolution=<s>
 
-    set_door(open)
+_<ts>_ – UNIX timestampai. _resolution_ nurodyti nebūtina (default: 1).
 
-Įjungti ir išjungti pompą (`on` gali būti `true` arba `false`):
 
-    set_pump(on)
+## Parametrai
+
+* _temp_ – oro temperatūra, laipsniais C.
+* _humidity_ – dirvos drėgnumas, abstrakčiais vienetais.

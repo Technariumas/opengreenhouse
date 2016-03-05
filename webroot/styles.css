@@ -2,7 +2,7 @@
 {
 	width: 10%;
 	height: 300;
-	float: right;
+	float: left;
 }
 
 .momentValueWidget > img
@@ -19,7 +19,6 @@
 
 .PageHeader > h1
 {
-	float: left;
 }
 
 .PageHeader
@@ -30,24 +29,31 @@
 #plotsContainer
 {
 	float:left;
-	width: 70%;
+	/*width: 70%;*/
 }
 
 #plotsContainer > div
 {
 	float:left;
-	width: 50%;
+	
 }
+
+#Content > div
+{
+	float:left;
+	
+}
+
 
 #plotsContainer > div > img
 {
-	width: 100%;
+	
 }
 
 #webCamContainer
 {
-	width: 100%;
 	float:left;
+	height: 200px;
 }
 
 #webCamContainer > img
@@ -74,5 +80,7 @@
 
 #TimeSelections
 {
-	clear: left;
+	float: left;
+	width: 300px;
+	height: 200px; 	
 }
