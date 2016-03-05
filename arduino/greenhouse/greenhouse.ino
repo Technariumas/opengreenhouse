@@ -12,11 +12,10 @@ int doorDirPin = 6;
 int doorStepPin = 7;
 int pumpPin = 9;
 int timerPeriod = 15000; // microseconds
-int millisbetweenSteps = 10; // milliseconds
 volatile int stepperTarget = 0;
 volatile int stepperPosition = 0;
 volatile int doorDelta = 0;
-int oldPosition = 0;
+int pumpTimeLeft = 0;
 int newPosition = 0;
 Encoder myEnc(2, 3);
 SerialCommand RasPiCmd;
@@ -27,7 +26,7 @@ void setup() {
   Timer1.attachInterrupt(windowStepper);
   //Timer1.attachInterrupt(doorStepper);
   Wire.begin();
-  Serial.begin(9600);
+  Serial.begin(112500);
   //Sensor
   writeI2CRegister8bit(0x21, 6); //reset
   //Stepper
@@ -36,7 +35,6 @@ void setup() {
   pinMode(doorDirPin, OUTPUT);
   pinMode(doorStepPin, OUTPUT);
   pinMode(pumpPin, OUTPUT);
-  //digitalWrite(pumpPin, HIGH);
   // Setup callbacks for SerialCommand commands 
   RasPiCmd.addCommand("pump", togglePump);       // Toggle water pump   
   RasPiCmd.addCommand("window", setStepperTarget); //set stepper target position
@@ -46,12 +44,10 @@ void setup() {
 
 void togglePump()    
 {
-  int pumpState;  
   char *arg; 
   arg = RasPiCmd.next(); 
   if (arg != NULL) {
-    pumpState=atoi(arg);    // Converts a char string to an integer
-    digitalWrite(pumpPin, pumpState);
+    pumpTimeLeft = atoi(arg);
   } 
 }
 
@@ -119,20 +115,27 @@ void doorStepper() {
 }
 
 
-long int getEncoderPosition(){
-  long int newPosition = myEnc.read(); 
-  newPosition = newPosition/4;
-  return newPosition;
+long int windSpeed(){
+  long int pos = myEnc.read();
+  myEnc.write(0);
+  return pos / 4;
 }
 
 //int getRevsSec
 
 void loop() {
   RasPiCmd.readSerial(); 
+
+  if (pumpTimeLeft > 0) {
+    digitalWrite(pumpPin, HIGH);
+    pumpTimeLeft--;
+  } else {
+    digitalWrite(pumpPin, LOW);
+  }
+
   int temp = readI2CRegister16bit(0x21, 5);
   temp = temp/10;
   int moisture = readI2CRegister16bit(0x21, 0);
-  newPosition = getEncoderPosition();
   
   int light_level = readI2CRegister16bit(0x21, 3); //request light measurement 
   //Serial.print("Pump "); 
@@ -149,9 +152,13 @@ void loop() {
   Serial.println(light_level);
   //Serial.print("pulses_sec "); //read capacitance register
   //Serial.println(pulses_sec);
+  Serial.print("wind ");
+  Serial.println(windSpeed());
   Serial.print("window ");
   Serial.println(stepperPosition);
-  oldPosition = newPosition;
+  Serial.print("pump ");
+  Serial.println(pumpTimeLeft);
+
   delay(1000);
 }
 

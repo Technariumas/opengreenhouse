@@ -1,3 +1,0 @@
-[submodule "arduino/greenhouse/Arduino-SerialCommand"]
-	path = arduino/greenhouse/Arduino-SerialCommand
-	url = https://github.com/kroimon/Arduino-SerialCommand
