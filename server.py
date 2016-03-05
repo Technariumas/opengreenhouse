@@ -14,7 +14,7 @@ import sys
 
 
 SERIAL_DEVICE = "/dev/arduino"
-SERIAL_RATE = 112500
+SERIAL_RATE = 115200
 HTTP_HOST = '127.0.0.1'
 HTTP_PORT = 8000
 
