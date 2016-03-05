@@ -20,6 +20,8 @@ HTTP_PORT = 8000
 
 WINDOW_OPEN_POSITION = 0
 WINDOW_CLOSED_POSITION = 1000
+DOOR_OPEN_POSITION = 0
+DOOR_CLOSED_POSITION = 1000
 WIND_THRESHOLD = 200
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
@@ -84,11 +86,15 @@ class Arduino:
     def from_arduino(self, key, value):
         if key == 'window':
             return int(100 * (value - WINDOW_CLOSED_POSITION) / (WINDOW_OPEN_POSITION - WINDOW_CLOSED_POSITION))
+        if key == 'door':
+            return int(100 * (value - DOOR_CLOSED_POSITION) / (DOOR_OPEN_POSITION - DOOR_CLOSED_POSITION))
         return int(value)
 
     def to_arduino(self, key, value):
         if key == 'window':
             return int((WINDOW_OPEN_POSITION - WINDOW_CLOSED_POSITION) * value / 100) + WINDOW_CLOSED_POSITION
+        if key == 'door':
+            return int((DOOR_OPEN_POSITION - DOOR_CLOSED_POSITION) * value / 100) + DOOR_CLOSED_POSITION
         return int(value)
 
     def get(self, key):
