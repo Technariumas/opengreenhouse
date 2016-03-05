@@ -12,48 +12,39 @@ Jei klaida, grąžina HTTP klaidą ir JSON:
 
 ## Procedūros
 
-Nustato naują reikšmę:
+## Sensoriai
 
-    PUT /rpc/<name>/?value=<value>
-
-
-## Parametrai
-
-### Skaitymui
-
-Grąžina dabartinę parametro _<name>_ reikšmę:
+Grąžina dabartinę sensoriaus _name_ reikšmę:
 
     GET /rpc/<name>/
 
-Parametro kitimas laike:
+Reikšmių kitimas laike:
 
     GET /rpc/series/<name>/?start=<ts>&end=<ts>&resolution=<s>
 
-_<ts>_ – UNIX timestampai. _resolution_ nurodyti nebūtina (default: 1).
+_ts_ – UNIX timestampai. _resolution_ – sekundėmis, nurodyti nebūtina (default: 1).
 
-Parametrų pavadinimai:
-
+Sensorių pavadinimai:
 * _temp_ – oro temperatūra, laipsniais C.
-
 * _humidity_ – dirvos drėgnumas, abstrakčiais vienetais.
-
 * _wind_ – vėjo greitis, enkoderio tikais per sekundę (600 per apsisukimą)
 
-### Rašymui ir skaitymui
+
+## Valdymo parametrai
 
 * Dabartinė lango pozicija, steperio žingsniais:
 
-    GET /rpc/window/
+        GET /rpc/window/
 
 * Sukti lango motorą į poziciją _pos_:
 
-    PUT /rpc/window/?value=<pos>
+        PUT /rpc/window/?value=<pos>
 
 * Kiek sekundžių liko laistyti:
 
-    GET /rpc/pump/
+        GET /rpc/pump/
 
-* Laistyti _<sec>_ sekundžių:
+* Laistyti _tiek_ sekundžių:
 
-    PUT /rpc/pump/?value=<pos>
+        PUT /rpc/pump/?value=<tiek>
 
