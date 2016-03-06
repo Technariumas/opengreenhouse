@@ -9,6 +9,9 @@ function appendToChart(chartId, value)
 
 	var dates = valueStorage[chartId];
 
+	if(value < 0)
+		value = 0;
+
 	dates.push({ "time" : new Date(Date.now()), "value" : value});
 
 	valueStorage[chartId] = dates;

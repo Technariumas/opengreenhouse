@@ -259,6 +259,8 @@ function continuousUpdate()
 		var value = 800-results.value;
 
 		id = gSensorsList[1].chartId;
+		if(value < 0)
+			value = 0;
 
 		appendToChart(id, value);
 		setWidgetValue(gSensorsList[1].name+"Widget", value)
@@ -272,6 +274,8 @@ function continuousUpdate()
 		var value = results.value;
 
 		id = gSensorsList[2].chartId;
+		if(value < 0)
+			value = 0;
 
 		appendToChart(id, value);
 		setWidgetValue(gSensorsList[2].name+"Widget", value)
@@ -284,6 +288,8 @@ function continuousUpdate()
 		var value = results.value;
 
 		id = gSensorsList[2].chartId;
+		if(value < 0)
+			value = 0;
 
 		appendToChart(id, value);
 		setWidgetValue(gSensorsList[2].name+"Widget", value)
