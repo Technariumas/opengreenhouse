@@ -137,6 +137,7 @@ class Arduino:
         end = float(end)
 
         log = pandas.read_csv(self.log_filename(name), sep=' ', names=('time', 'value'))
+        log = log.dropna()
         log.time = log.time.astype(float)
         log.value = log.value.astype(int)
         log = log[(start <= log.time) & (log.time <= end)]
