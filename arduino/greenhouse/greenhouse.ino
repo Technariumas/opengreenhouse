@@ -9,11 +9,11 @@ int doorStepPin = 5;
 int winDirPin = 6;
 int winStepPin = 7;
 int pumpPin = 9;
-
 int timerPeriod = 750; // microseconds
+int timerPeriod = 800; // microseconds
 volatile int windowTarget = 0;
 volatile int windowPosition = 0;
-volatile int doorTarget = 0;
+volatile int doorTarget = -1000;
 volatile int doorPosition = 0;
 
 int pumpTimeLeft = 0;
@@ -88,7 +88,7 @@ unsigned int readI2CRegister16bit(int addr, int reg) {
 
 void stepperInterrupt() {
   int windowDelta = windowTarget - windowPosition;;
-  if (digitalRead(winStepPin) == 1) {
+  if (digitalRead(winStepPin) == HIGH) {
     digitalWrite(winStepPin, LOW);
   } else if (windowDelta > 0){
     digitalWrite(winDirPin, LOW); 
@@ -101,7 +101,7 @@ void stepperInterrupt() {
   }
 
   int doorDelta = doorTarget - doorPosition;;
-  if (digitalRead(doorStepPin) == 1) {
+  if (digitalRead(doorStepPin) == HIGH) {
     digitalWrite(doorStepPin, LOW);
   } else if (doorDelta > 0){
     digitalWrite(doorDirPin, LOW); 
@@ -148,7 +148,3 @@ void loop() {
 
   delay(1000);
 }
-
-
-
-
