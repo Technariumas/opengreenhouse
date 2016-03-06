@@ -169,8 +169,9 @@ def get(key):
     return ok(ARDUINO.get(key))
 
 @bottle.put('/rpc/<key>/')
-def put(key, value):
-    value = int(value)
+def put(key):
+    q = bottle.request.query
+    value = int(q.value)
     return ok(ARDUINO.put(key, value))
 
 
