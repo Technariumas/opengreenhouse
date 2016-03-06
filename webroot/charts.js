@@ -48,10 +48,27 @@ function fillChartData(chartId, data)
 
 	var dates = []
 
-	
-	for(i = 0; i < time.length; i++){
-		dates.push({ "time" : new Date(time[i]*1000), "value" :value[i]});
+	if(chartId == "tempChart")
+	{
+		for(i = 0; i < time.length; i++){
+			dates.push({ "time" : new Date(time[i]*1000), "value" :value[i] /10});
+		}
 	}
+
+	else if(chartId == "humidityChart")
+	{
+		for(i = 0; i < time.length; i++){
+			dates.push({ "time" : new Date(time[i]*1000), "value" : 800-value[i]});
+		}
+	}
+	else
+	{
+		for(i = 0; i < time.length; i++){
+			dates.push({ "time" : new Date(time[i]*1000), "value" : value[i]});
+		}
+	}
+
+
 
 	valueStorage[chartId] = dates;
 

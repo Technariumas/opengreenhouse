@@ -182,7 +182,7 @@ function initialUpdate()
 	var name;
 	var timeEnd = Date.now()/1000;
 	//var timeEnd = 1457252192;
-	var timeStart = timeEnd-10;
+	var timeStart = timeEnd-60;
 	var timeResolution = 1;
 
 	queryData(gSensorsList[0].name, timeStart, timeEnd, timeResolution, 
@@ -345,7 +345,7 @@ function getWindow()
 			if(ctr == undefined)
 				return;
 
-			var windowVal = xmlHttp.responseText["value"];
+			var windowVal = xmlHttp.responseText.value;
 			if(windowVal == undefined)
 				return;
 
@@ -390,11 +390,12 @@ function getWater()
 			if(ctr == undefined)
 				return;
 
-			var windowVal = xmlHttp.responseText["value"];
+			var windowVal = xmlHttp.responseText.value;
 			if(windowVal == undefined)
 				return;
 
-			ctr.value = windowVal;			
+			ctr.value = windowVal;
+			ctr.refresh();		
 		}		
 	}
     return xmlHttp.responseText;
@@ -435,7 +436,7 @@ function getDoor()
 			if(ctr == undefined)
 				return;
 
-			var windowVal = xmlHttp.responseText["value"];
+			var windowVal = xmlHttp.responseText.value;
 			if(windowVal == undefined)
 				return;
 
