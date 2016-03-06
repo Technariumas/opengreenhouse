@@ -2,6 +2,7 @@ function Initialize()
 {
 	UpdateSensorsList();
 	continuousUpdateWebCam();
+	continuousUpdate();
 }
 
 function queryData(name, start, end, resolution, callback)
@@ -154,29 +155,62 @@ function UpdateSensorsList()
 function continuousUpdate()
 {
 	var name;
-	var timeEnd = Date.now();
-	var timeStart = timeEnd-1;
+	var timeEnd = Date.now()/1000;
+	var timeStart = timeEnd-3600;
 	var timeResolution = 1;
-	for(var index in gSensorsList)
-	{
-		queryData(gSensorsList[index].name, timeStart, timeEnd, timeResolution, 
-			function(data){ 
 
-			fillChartData(gSensorsList[index].chartId, data) 
+	queryData(gSensorsList[0].name, timeStart, timeEnd, timeResolution, 
+		function(data){ 
+
+		fillChartData(gSensorsList[0].chartId, data) 
+	
+		values = JSON.parse(data);
+		numbers = values.value.value;
+		var lastValue = numbers[numbers.length-1];
+		setWidgetValue(gSensorsList[0].name+"Widget", lastValue)
 		
-			values = JSON.parse(data);
-			numbers = values.value.value;
-			var lastValue = numbers[numbers.length-1];
-			setWidgetValue(gSensorsList[index].name+"Widget", lastValue)
-			
-			});
-	}
-	setTimeout(continuousUpdate, 500);
+		});
+
+	queryData(gSensorsList[1].name, timeStart, timeEnd, timeResolution, 
+		function(data){ 
+
+		fillChartData(gSensorsList[1].chartId, data) 
+	
+		values = JSON.parse(data);
+		numbers = values.value.value;
+		var lastValue = numbers[numbers.length-1];
+		setWidgetValue(gSensorsList[1].name+"Widget", lastValue)
+		
+		});
+
+	queryData(gSensorsList[2].name, timeStart, timeEnd, timeResolution, 
+		function(data){ 
+
+		fillChartData(gSensorsList[2].chartId, data) 
+	
+		values = JSON.parse(data);
+		numbers = values.value.value;
+		var lastValue = numbers[numbers.length-1];
+		setWidgetValue(gSensorsList[2].name+"Widget", lastValue)
+		
+		});
+	queryData(gSensorsList[3].name, timeStart, timeEnd, timeResolution, 
+		function(data){ 
+
+		fillChartData(gSensorsList[3].chartId, data) 
+	
+		values = JSON.parse(data);
+		numbers = values.value.value;
+		var lastValue = numbers[numbers.length-1];
+		setWidgetValue(gSensorsList[3].name+"Widget", lastValue)
+		
+		});
+	setTimeout(continuousUpdate, 5000);
 }
 
 function continuousUpdateWebCam()
 {
 	var frame = document.getElementById("webCamFrame");
 	frame.src = "camera/snap.jpg?"+Date.now();
-	setTimeout(continuousUpdateWebCam, 1000);
+	setTimeout(continuousUpdateWebCam, 2000);
 }
