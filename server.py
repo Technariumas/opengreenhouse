@@ -23,7 +23,7 @@ WINDOW_CLOSED_POSITION = 0
 DOOR_OPEN_POSITION = -9500
 DOOR_CLOSED_POSITION = 0
 WIND_THRESHOLD = 200
-WIND_MEAN_TIME = 20
+WIND_MEAN_TIME = 40
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
 WEBROOT = os.path.join(ROOT, "webroot")
@@ -50,7 +50,7 @@ class Arduino:
         wind = self.state.get('wind', 0)
         if wind > WIND_THRESHOLD:
             self.put('window', 0)
-        elif wind < WIND_THRESHOLD / 2 and self.state.get('window', 100) != 100:
+        elif wind < WIND_THRESHOLD / 4 and self.state.get('window', 100) != 100:
             self.put('window', 100)
 
     def interact(self):
