@@ -199,7 +199,7 @@ function initialUpdate()
 	
 		values = JSON.parse(data);
 		numbers = values.value.value;
-		var lastValue = 400-numbers[numbers.length-1];
+		var lastValue = 800-numbers[numbers.length-1];
 		setWidgetValue(gSensorsList[1].name+"Widget", lastValue)
 		
 		});
@@ -251,7 +251,7 @@ function continuousUpdate()
 		function(data){ 
 
 		var results = JSON.parse(data);
-		var value = 400-results.value;
+		var value = 800-results.value;
 
 		id = gSensorsList[1].chartId;
 
@@ -307,7 +307,7 @@ function setWindow()
 
 	var command = "rpc/window/?value="+ctr.value;
 	xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", g_ServerURL+'/'+command, true);
+    xmlHttp.open( "PUT", g_ServerURL+'/'+command, true);
     xmlHttp.send("");
 	/*xmlHttp.onreadystatechange = function(e) 
 	{
@@ -397,7 +397,7 @@ function setDoor()
 
 	var command = "rpc/door/?value="+ctr.value;
 	xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", g_ServerURL+'/'+command, true);
+    xmlHttp.open( "PUT", g_ServerURL+'/'+command, true);
     xmlHttp.send("");
 	/*xmlHttp.onreadystatechange = function(e) 
 	{
@@ -414,7 +414,7 @@ function getDoor()
 {
 	var command = "rpc/door/";
 	xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", g_ServerURL+'/'+command, true);
+    xmlHttp.open( "PUT", g_ServerURL+'/'+command, true);
     xmlHttp.send("");
 	xmlHttp.onreadystatechange = function(e) 
 	{
