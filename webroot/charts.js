@@ -12,23 +12,18 @@ function fillChartData(chartId, data)
 	var time = obj.value.time;
 	var value = obj.value.value;
 
-	var data = [];	
-	var txtData = '[';
+	var dates = []
+
+	
 	for(i = 0; i < time.length; i++){
-		text = '{"time": "' + time[i] + '",\n"value": ' + value[i] + '}';
-		txtData += text;
-		if(i < time.length-1) 
-			txtData += ',';
+		dates.push({ "time" : new Date(time[i]*1000), "value" :value[i]});
 	}
 
-	txtData += ']';
-//	chartElement.innerHTML = txtData;
-	data = JSON.parse(txtData);
-	
+
 	MG.data_graphic({
         title: chartId,
         description: "",
-        data: data,
+        data: dates,
         width: 400,
         height: 200,
         right: 40,
