@@ -85,7 +85,11 @@ class Arduino:
                     self.state[key] = value
                     self.handle()
                     self.recvq.put((key, value))
+                except ValueError:
+                    print("Malformed input from arduino:", line)
+                    continue
                 except UnicodeDecodeError:
+                    print("Malformed input from arduino:", line)
                     continue
             except SerialException:
                 if serial is not None:
@@ -201,6 +205,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 
 def main():
+    print("Starting up...")
     os.chdir(WEBROOT)
     httpd = http.server.HTTPServer((HTTP_HOST, HTTP_PORT), Handler)
     print("Serving on http://0.0.0.0:8000")
