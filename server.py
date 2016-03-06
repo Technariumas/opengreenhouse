@@ -24,7 +24,7 @@ WINDOW_CLOSED_POSITION = 0
 DOOR_OPEN_POSITION = -9500
 DOOR_CLOSED_POSITION = 0
 WIND_THRESHOLD = 200
-WIND_MEAN_TIME = 40
+WIND_MEAN_TIME = 10
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
 WEBROOT = os.path.join(ROOT, "webroot")
@@ -119,9 +119,8 @@ class Arduino:
         if key == 'wind':
             if value < 0:
                 value = 0
-            if len(self.wind_fir):
-                self.wind_fir.pop(0)
             self.wind_fir.append(int(value))
+            self.wind_fir = self.wind_fir[-WIND_MEAN_TIME:]
             return int(numpy.mean(self.wind_fir))
         return int(value)
 
