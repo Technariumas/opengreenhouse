@@ -3,26 +3,31 @@
 #include <TimerOne.h>
 #include <SerialCommand.h>
 
+
 int doorDirPin = 4;
 int doorStepPin = 5;
 int winDirPin = 6;
 int winStepPin = 7;
 int pumpPin = 9;
-int timerPeriod = 15000; // microseconds
+
+int timerPeriod = 750; // microseconds
 volatile int windowTarget = 0;
 volatile int windowPosition = 0;
 volatile int doorTarget = 0;
 volatile int doorPosition = 0;
+
 int pumpTimeLeft = 0;
-Encoder myEnc(2, 3);
-SerialCommand RasPiCmd;
+
+Encoder encoder(2, 3);
+SerialCommand commandParser;
+
 
 void setup() {
   Timer1.initialize(timerPeriod);
   Timer1.attachInterrupt(stepperInterrupt);
 
   Wire.begin();
-  Serial.begin(112500);
+  Serial.begin(115200);
 
   // Reset humidity sensor
   writeI2CRegister8bit(0x21, 6);
@@ -36,14 +41,14 @@ void setup() {
   pinMode(pumpPin, OUTPUT);
 
   // Setup callbacks for SerialCommand commands 
-  RasPiCmd.addCommand("pump", cmdPump);
-  RasPiCmd.addCommand("window", cmdWindow);
-  RasPiCmd.addCommand("door", cmdDoor);
+  commandParser.addCommand("pump", cmdPump);
+  commandParser.addCommand("window", cmdWindow);
+  commandParser.addCommand("door", cmdDoor);
 }
 
 void cmdPump() {
   char *arg; 
-  arg = RasPiCmd.next(); 
+  arg = commandParser.next(); 
   if (arg != NULL) {
     pumpTimeLeft = atoi(arg);
   } 
@@ -51,18 +56,14 @@ void cmdPump() {
 
 void cmdWindow() {
   char *arg; 
-  arg = RasPiCmd.next(); 
-  if (arg != NULL) {
-    windowTarget = atoi(arg);
-  } 
+  arg = commandParser.next(); 
+  windowTarget = atoi(arg);
 }
 
 void cmdDoor() {
   char *arg; 
-  arg = RasPiCmd.next(); 
-  if (arg != NULL) {
-    doorTarget = atoi(arg);
-  } 
+  arg = commandParser.next(); 
+  doorTarget = atoi(arg);
 }
 
 
@@ -89,42 +90,32 @@ void stepperInterrupt() {
   int windowDelta = windowTarget - windowPosition;;
   if (digitalRead(winStepPin) == 1) {
     digitalWrite(winStepPin, LOW);
-  } 
-  else if (windowDelta > 0){
+  } else if (windowDelta > 0){
     digitalWrite(winDirPin, LOW); 
     digitalWrite(winStepPin, HIGH);
     windowPosition++;
-  } 
-  else if (windowDelta < 0){
+  } else if (windowDelta < 0){
     digitalWrite(winDirPin, HIGH); 
     digitalWrite(winStepPin, HIGH);
     windowPosition--;  
   }
 
   int doorDelta = doorTarget - doorPosition;;
-  if (digitalRead(winStepPin) == 1) {
-    digitalWrite(winStepPin, LOW);
-  } 
-  else if (doorDelta > 0){
-    digitalWrite(winDirPin, LOW); 
-    digitalWrite(winStepPin, HIGH);
+  if (digitalRead(doorStepPin) == 1) {
+    digitalWrite(doorStepPin, LOW);
+  } else if (doorDelta > 0){
+    digitalWrite(doorDirPin, LOW); 
+    digitalWrite(doorStepPin, HIGH);
     doorPosition++;
-  } 
-  else if (doorDelta < 0){
-    digitalWrite(winDirPin, HIGH); 
-    digitalWrite(winStepPin, HIGH);
+  } else if (doorDelta < 0){
+    digitalWrite(doorDirPin, HIGH); 
+    digitalWrite(doorStepPin, HIGH);
     doorPosition--;  
   }
 }
 
-long int windSpeed(){
-  long int pos = myEnc.read();
-  myEnc.write(0);
-  return pos / 4;
-}
-
 void loop() {
-  RasPiCmd.readSerial(); 
+  commandParser.readSerial(); 
 
   if (pumpTimeLeft > 0) {
     digitalWrite(pumpPin, HIGH);
@@ -132,6 +123,9 @@ void loop() {
   } else {
     digitalWrite(pumpPin, LOW);
   }
+
+  long int windSpeed = encoder.read() / 4;
+  encoder.write(0);
 
   int temp = readI2CRegister16bit(0x21, 5);
   int moisture = readI2CRegister16bit(0x21, 0);
@@ -144,7 +138,7 @@ void loop() {
   Serial.print("light ");
   Serial.println(lightLevel);
   Serial.print("wind ");
-  Serial.println(windSpeed());
+  Serial.println(windSpeed);
   Serial.print("window ");
   Serial.println(windowPosition);
   Serial.print("door ");
