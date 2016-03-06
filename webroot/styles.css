@@ -97,5 +97,6 @@ body
 
 #Controls
 {
-	clear: both;
+	margin-left: 20px;
+	float: left;
 }

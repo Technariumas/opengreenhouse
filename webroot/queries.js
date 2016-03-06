@@ -1,5 +1,10 @@
+var controlsVisible = false;
+
 function Initialize()
-{
+{// register the handler 
+	document.addEventListener('keyup', toggleControls, false);
+
+
 	UpdateSensorsList();
 	continuousUpdateWebCam();
 	initialUpdate();
@@ -432,4 +437,22 @@ function getDoor()
 		}		
 	}
     return xmlHttp.responseText;
+}
+
+function toggleControls(e)
+{
+ 	if (e.keyCode != 75) {
+        // call your function to do the thing
+        return;
+    }
+
+
+	var element = document.getElementById("Controls");
+	if(element == undefined)
+		return;
+	controlsVisible = !controlsVisible;
+	if(controlsVisible)
+		document.getElementById("Controls").style.visibility = "visible";
+	else
+		document.getElementById("Controls").style.visibility = "hidden";
 }
