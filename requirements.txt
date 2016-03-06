@@ -1,3 +1,5 @@
 pyserial
 numpy
 pandas
+bottle
+gunicorn

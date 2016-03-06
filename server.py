@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import http.server
+import bottle
 import json
 import urllib.parse
 import numpy
@@ -154,70 +155,30 @@ class Arduino:
 
 ARDUINO = Arduino(mock='--mock' in sys.argv)
 
-class Handler(http.server.SimpleHTTPRequestHandler):
-    def respond(self, code, value):
-        self.send_response(code)
-        self.send_header("Content-type", "application/json")
-        self.end_headers()
-        self.wfile.write(json.dumps(value).encode('utf-8') + b'\n')
+def ok(value):
+    return {"ok": True, "value": value}
 
-    def error(self, code, reason):
-        self.respond(code, {"ok": False, "error": reason})
+@bottle.get('/rpc/series/<key>/')
+def series(key):
+    q = bottle.request.query
+    return ok(ARDUINO.timeseries(key, q.start, q.end, q.resolution))
 
-    def ok(self, value):
-        self.respond(200, {"ok": True, "value": value})
+@bottle.get('/rpc/<key>/')
+def get(key):
+    return ok(ARDUINO.get(key))
 
-    def do_GET(self):
-        if not self.path.startswith('/rpc/'):
-            return super().do_GET()
-        return self.rpc(action='GET')
-
-    def do_PUT(self):
-        if not self.path.startswith('/rpc/'):
-            return super().do_PUT()
-        return self.rpc(action='PUT')
-
-    def rpc(self, action):
-        try:
-            path = urllib.parse.urlparse(self.path)
-            params = dict(urllib.parse.parse_qsl(path.query))
-
-            try:
-                components = path.path.strip('/').split('/')
-                name = components[1]
-                if action == "GET":
-                    if name == 'series':
-                        name = components[2]
-                        return self.ok(ARDUINO.timeseries(name, **params))
-                    else:
-                        return self.ok(ARDUINO.get(name))
-                else:
-                    try:
-                        value = int(params['value'])
-                        return self.ok(ARDUINO.put(name, value))
-                    except KeyError as e:
-                        return self.error(400, "No value given.")
-                    except ValueError as e:
-                        return self.error(400, "Invalid number: {}".format(params['value']))
-            except IndexError as e:
-                return self.error(400, "{}".format(e))
-            except TypeError as e:
-                return self.error(400, "{}".format(e))
-        except:
-            self.error(501, "Internal server error.")
-            raise
+@bottle.put('/rpc/<key>/')
+def put(key, value):
+    value = int(value)
+    return ok(ARDUINO.put(key, value))
 
 
 def main():
     print("Starting up...")
     os.chdir(WEBROOT)
-    httpd = http.server.HTTPServer((HTTP_HOST, HTTP_PORT), Handler)
-    print("Serving on http://0.0.0.0:8000")
     ARDUINO.start()
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        os._exit(1)
+    sys.argv = [sys.argv[0]]
+    bottle.run(host=HTTP_HOST, port=HTTP_PORT, server='gunicorn', workers=4)
 
 
 if __name__ == "__main__":
