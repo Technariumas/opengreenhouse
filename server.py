@@ -57,6 +57,7 @@ class Arduino:
             self.window_prev = self.state.get('window', 0)
             self.door_prev = self.state.get('door', 0)
             self.put('window', 0)
+            self.put('door', 0)
         elif self.window_close and wind < WIND_THRESHOLD / 4:
             self.window_close = False
             self.put('window', self.window_prev)
