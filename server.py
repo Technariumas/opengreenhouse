@@ -178,7 +178,7 @@ def main():
     os.chdir(WEBROOT)
     ARDUINO.start()
     sys.argv = [sys.argv[0]]
-    bottle.run(host=HTTP_HOST, port=HTTP_PORT, server='gunicorn', workers=4)
+    bottle.run(host=HTTP_HOST, port=HTTP_PORT, server='cherrypy')
 
 
 if __name__ == "__main__":
