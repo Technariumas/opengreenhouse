@@ -2,12 +2,32 @@ function Initialize()
 {
 	UpdateSensorsList();
 	continuousUpdateWebCam();
+	initialUpdate();
 	continuousUpdate();
 }
 
 function queryData(name, start, end, resolution, callback)
 {
 	var command = "rpc/series/"+name+"/?start="+start+"&end="+end+"&resolution="+resolution;
+
+	var xmlHttp = null;
+    xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", g_ServerURL+'/'+command, true);
+    xmlHttp.send("");
+	xmlHttp.onreadystatechange = function(e) 
+	{
+		if ( xmlHttp.readyState === 4 ) 
+		{		
+			if(callback)
+				callback(xmlHttp.responseText, xmlHttp.status);
+		}		
+	}
+    return xmlHttp.responseText;
+}
+
+function queryDataPoint(name, callback)
+{
+	var command = "rpc/"+name+"/";
 
 	var xmlHttp = null;
     xmlHttp = new XMLHttpRequest();
@@ -152,11 +172,12 @@ function UpdateSensorsList()
     return xmlHttp.responseText;
 }
 
-function continuousUpdate()
+function initialUpdate()
 {
 	var name;
 	var timeEnd = Date.now()/1000;
-	var timeStart = timeEnd-3600;
+	//var timeEnd = 1457252192;
+	var timeStart = timeEnd-10;
 	var timeResolution = 1;
 
 	queryData(gSensorsList[0].name, timeStart, timeEnd, timeResolution, 
@@ -203,6 +224,64 @@ function continuousUpdate()
 		numbers = values.value.value;
 		var lastValue = numbers[numbers.length-1];
 		setWidgetValue(gSensorsList[3].name+"Widget", lastValue)
+		
+		});
+}
+
+function continuousUpdate()
+{
+	var name;
+	var timeEnd = Date.now()/1000;
+	var timeStart = timeEnd-3600;
+	var timeResolution = 1;
+
+	queryDataPoint(gSensorsList[0].name,
+		function(data){ 
+
+		var results = JSON.parse(data);
+		var value = results["value"];
+		id = gSensorsList[0].chartId;
+
+		appendToChart(id, value);
+		setWidgetValue(gSensorsList[0].name+"Widget", value)
+		
+		});
+
+	queryDataPoint(gSensorsList[1].name,
+		function(data){ 
+
+		var results = JSON.parse(data);
+		var value = results.value;
+
+		id = gSensorsList[1].chartId;
+
+		appendToChart(id, value);
+		setWidgetValue(gSensorsList[1].name+"Widget", value)
+		
+		});
+
+	queryDataPoint(gSensorsList[2].name,
+		function(data){ 
+
+		var results = JSON.parse(data);
+		var value = results.value;
+
+		id = gSensorsList[2].chartId;
+
+		appendToChart(id, value);
+		setWidgetValue(gSensorsList[2].name+"Widget", value)
+		
+		});
+	queryDataPoint(gSensorsList[3].name, 
+		function(data){ 
+
+		var results = JSON.parse(data);
+		var value = results.value;
+
+		id = gSensorsList[2].chartId;
+
+		appendToChart(id, value);
+		setWidgetValue(gSensorsList[2].name+"Widget", value)
 		
 		});
 	setTimeout(continuousUpdate, 5000);
