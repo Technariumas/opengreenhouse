@@ -107,6 +107,8 @@ class Arduino:
         if key == 'door':
             return int(100 * (value - DOOR_CLOSED_POSITION) / (DOOR_OPEN_POSITION - DOOR_CLOSED_POSITION))
         if key == 'wind':
+            if value < 0:
+                value = 0
             if len(self.wind_fir):
                 self.wind_fir.pop(0)
             self.wind_fir.append(int(value))
