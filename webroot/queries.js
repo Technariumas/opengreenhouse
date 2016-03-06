@@ -187,7 +187,7 @@ function initialUpdate()
 	
 		values = JSON.parse(data);
 		numbers = values.value.value;
-		var lastValue = numbers[numbers.length-1];
+		var lastValue = numbers[numbers.length-1]/10;
 		setWidgetValue(gSensorsList[0].name+"Widget", lastValue)
 		
 		});
@@ -199,7 +199,7 @@ function initialUpdate()
 	
 		values = JSON.parse(data);
 		numbers = values.value.value;
-		var lastValue = numbers[numbers.length-1];
+		var lastValue = 400-numbers[numbers.length-1];
 		setWidgetValue(gSensorsList[1].name+"Widget", lastValue)
 		
 		});
@@ -239,7 +239,7 @@ function continuousUpdate()
 		function(data){ 
 
 		var results = JSON.parse(data);
-		var value = results["value"];
+		var value = results["value"]/10;
 		id = gSensorsList[0].chartId;
 
 		appendToChart(id, value);
@@ -251,7 +251,7 @@ function continuousUpdate()
 		function(data){ 
 
 		var results = JSON.parse(data);
-		var value = results.value;
+		var value = 400-results.value;
 
 		id = gSensorsList[1].chartId;
 
@@ -284,7 +284,12 @@ function continuousUpdate()
 		setWidgetValue(gSensorsList[2].name+"Widget", value)
 		
 		});
-	setTimeout(continuousUpdate, 5000);
+
+	getWindow();
+	getWater();
+	getDoor();
+
+	setTimeout(continuousUpdate, 1000);
 }
 
 function continuousUpdateWebCam()
@@ -292,4 +297,139 @@ function continuousUpdateWebCam()
 	var frame = document.getElementById("webCamFrame");
 	frame.src = "camera/snap.jpg?"+Date.now();
 	setTimeout(continuousUpdateWebCam, 2000);
+}
+
+function setWindow()
+{
+	var ctr = document.getElementById("windowSlider");
+	if(ctr == undefined)
+		return;
+
+	var command = "rpc/window/?value="+ctr.value;
+	xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", g_ServerURL+'/'+command, true);
+    xmlHttp.send("");
+	/*xmlHttp.onreadystatechange = function(e) 
+	{
+		if ( xmlHttp.readyState === 4 ) 
+		{		
+			if(callback)
+				callback(xmlHttp.responseText, xmlHttp.status);
+		}		
+	}*/
+    return xmlHttp.responseText;
+}
+
+function getWindow()
+{
+	var command = "rpc/window/";
+	xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", g_ServerURL+'/'+command, true);
+    xmlHttp.send("");
+	xmlHttp.onreadystatechange = function(e) 
+	{
+		if ( xmlHttp.readyState === 4 ) 
+		{		
+			var ctr = document.getElementById("windowSlider");
+			if(ctr == undefined)
+				return;
+
+			var windowVal = xmlHttp.responseText["value"];
+			if(windowVal == undefined)
+				return;
+
+			ctr.value = windowVal;			
+		}		
+	}
+    return xmlHttp.responseText;
+}
+
+function setWater()
+{
+	var ctr = document.getElementById("waterSlider");
+	if(ctr == undefined)
+		return;
+
+	var command = "rpc/pump/?value="+ctr.value;
+	xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", g_ServerURL+'/'+command, true);
+    xmlHttp.send("");
+	/*xmlHttp.onreadystatechange = function(e) 
+	{
+		if ( xmlHttp.readyState === 4 ) 
+		{		
+			if(callback)
+				callback(xmlHttp.responseText, xmlHttp.status);
+		}		
+	}*/
+    return xmlHttp.responseText;
+}
+
+function getWater()
+{
+	var command = "rpc/pump/";
+	xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", g_ServerURL+'/'+command, true);
+    xmlHttp.send("");
+	xmlHttp.onreadystatechange = function(e) 
+	{
+		if ( xmlHttp.readyState === 4 ) 
+		{		
+			var ctr = document.getElementById("waterSlider");
+			if(ctr == undefined)
+				return;
+
+			var windowVal = xmlHttp.responseText["value"];
+			if(windowVal == undefined)
+				return;
+
+			ctr.value = windowVal;			
+		}		
+	}
+    return xmlHttp.responseText;
+}
+
+function setDoor()
+{
+	var ctr = document.getElementById("doorSlider");
+	if(ctr == undefined)
+		return;
+
+	var command = "rpc/door/?value="+ctr.value;
+	xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", g_ServerURL+'/'+command, true);
+    xmlHttp.send("");
+	/*xmlHttp.onreadystatechange = function(e) 
+	{
+		if ( xmlHttp.readyState === 4 ) 
+		{		
+			if(callback)
+				callback(xmlHttp.responseText, xmlHttp.status);
+		}		
+	}*/
+    return xmlHttp.responseText;
+}
+
+function getDoor()
+{
+	var command = "rpc/door/";
+	xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", g_ServerURL+'/'+command, true);
+    xmlHttp.send("");
+	xmlHttp.onreadystatechange = function(e) 
+	{
+		if ( xmlHttp.readyState === 4 ) 
+		{		
+			var ctr = document.getElementById("doorSlider");
+			if(ctr == undefined)
+				return;
+
+			var windowVal = xmlHttp.responseText["value"];
+			if(windowVal == undefined)
+				return;
+
+			ctr.value = windowVal;			
+		}		
+	}
+    return xmlHttp.responseText;
 }
