@@ -53,34 +53,42 @@ class Arduino:
             self.put('window', 100)
 
     def interact(self):
-        if not self.mock:
-            try:
-                serial = Serial(SERIAL_DEVICE, SERIAL_RATE)
-            except SerialException:
-                print("Error opening serial. To use without arduino: ./server.py --mock")
-                os._exit(1)
+        serial = None
         while True:
             try:
-                while True:
-                    cmd = self.sendq.get(block=False)
-                    if self.mock:
-                        print("SERIAL WRITE:", cmd)
-                    else:
-                        serial.write(cmd.encode('ascii'))
-                        serial.write(b'\n')
-            except Empty:
-                pass
-            if self.mock:
-                time.sleep(1)
-                line = b'temp 18\n'
-            else:
-                line = serial.readline()
-            key, value = line.decode('ascii').strip().split(' ')
-            value = self.from_arduino(key, int(value))
-            self.log_value(key, value)
-            self.state[key] = value
-            self.handle()
-            self.recvq.put((key, value))
+                if serial is None and not self.mock:
+                    try:
+                        serial = Serial(SERIAL_DEVICE, SERIAL_RATE)
+                        print("Connecting to Arduino")
+                    except SerialException:
+                        print("Error opening serial. To use without arduino: ./server.py --mock")
+                        os._exit(1)
+                try:
+                    while True:
+                        cmd = self.sendq.get(block=False)
+                        if self.mock:
+                            print("SERIAL WRITE:", cmd)
+                        else:
+                            serial.write(cmd.encode('ascii'))
+                            serial.write(b'\n')
+                except Empty:
+                    pass
+                if self.mock:
+                    time.sleep(1)
+                    line = b'temp 18\n'
+                else:
+                    line = serial.readline()
+                key, value = line.decode('ascii').strip().split(' ')
+                value = self.from_arduino(key, int(value))
+                self.log_value(key, value)
+                self.state[key] = value
+                self.handle()
+                self.recvq.put((key, value))
+            except SerialException:
+                if serial is not None:
+                    serial.close()
+                    serial = None
+                    print("Disconnecting from Arduino")
 
     def start(self):
         self.thread.start()
