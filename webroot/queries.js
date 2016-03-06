@@ -187,7 +187,7 @@ function initialUpdate()
 	
 		values = JSON.parse(data);
 		numbers = values.value.value;
-		var lastValue = numbers[numbers.length-1];
+		var lastValue = numbers[numbers.length-1]/10;
 		setWidgetValue(gSensorsList[0].name+"Widget", lastValue)
 		
 		});
@@ -239,7 +239,7 @@ function continuousUpdate()
 		function(data){ 
 
 		var results = JSON.parse(data);
-		var value = results["value"];
+		var value = results["value"]/10;
 		id = gSensorsList[0].chartId;
 
 		appendToChart(id, value);
