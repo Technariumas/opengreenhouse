@@ -1,3 +1,34 @@
+valueStorage = [];
+
+function appendToChart(chartId, value)
+{
+	//chartId = 'tempChart';
+	var chartElement = document.getElementById(chartId);
+	if(chartElement == undefined)
+		return;
+
+	var dates = valueStorage[chartId];
+
+	dates.push({ "time" : new Date(Date.now()), "value" : value});
+
+	valueStorage[chartId] = dates;
+
+	if(valueStorage[chartId].length == 0)
+		return;
+
+	MG.data_graphic({
+        title: chartId,
+        description: "",
+        data: valueStorage[chartId],
+        width: 400,
+        height: 200,
+        right: 40,
+        target: chartElement,
+	    x_accessor: 'time',
+        y_accessor: 'value'
+    });
+}
+
 function fillChartData(chartId, data)
 {
 	var chartElement = document.getElementById(chartId);
@@ -19,6 +50,7 @@ function fillChartData(chartId, data)
 		dates.push({ "time" : new Date(time[i]*1000), "value" :value[i]});
 	}
 
+	valueStorage[chartId] = dates;
 
 	MG.data_graphic({
         title: chartId,
