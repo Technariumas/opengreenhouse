@@ -109,7 +109,7 @@ class Arduino:
             if len(self.wind_fir):
                 self.wind_fir.pop(0)
             self.wind_fir.append(int(value))
-            return int(numpy.mean(a))
+            return int(numpy.mean(self.wind_fir))
         return int(value)
 
     def to_arduino(self, key, value):
