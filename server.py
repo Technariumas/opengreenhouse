@@ -145,7 +145,7 @@ class Arduino:
             value = value.resample('{}s'.format(resolution)).dropna()
 
         return {
-            'time': [t.timestamp() for t in value.index],
+            'time': [int(t.timestamp()) for t in value.index],
             'value': [int(x) for x in value],
         }
 
@@ -159,7 +159,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.send_response(code)
         self.send_header("Content-type", "application/json")
         self.end_headers()
-        self.wfile.write(json.dumps(value, indent=4).encode('utf-8') + b'\n')
+        self.wfile.write(json.dumps(value).encode('utf-8') + b'\n')
 
     def error(self, code, reason):
         self.respond(code, {"ok": False, "error": reason})
