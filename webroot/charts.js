@@ -26,6 +26,7 @@ function appendToChart(chartId, value)
         width: 400,
         height: 200,
         right: 40,
+        interpolate: 'basic',
         target: chartElement,
 	    x_accessor: 'time',
         y_accessor: 'value'
@@ -79,6 +80,7 @@ function fillChartData(chartId, data)
         width: 400,
         height: 200,
         right: 40,
+        interpolate: 'basic',
         target: chartElement,
 	    x_accessor: 'time',
         y_accessor: 'value'
