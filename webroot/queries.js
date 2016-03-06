@@ -357,7 +357,7 @@ function setWater()
 
 	var command = "rpc/pump/?value="+ctr.value;
 	xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", g_ServerURL+'/'+command, true);
+    xmlHttp.open( "PUT", g_ServerURL+'/'+command, true);
     xmlHttp.send("");
 	/*xmlHttp.onreadystatechange = function(e) 
 	{
@@ -419,7 +419,7 @@ function getDoor()
 {
 	var command = "rpc/door/";
 	xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "PUT", g_ServerURL+'/'+command, true);
+    xmlHttp.open( "GET", g_ServerURL+'/'+command, true);
     xmlHttp.send("");
 	xmlHttp.onreadystatechange = function(e) 
 	{
