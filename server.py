@@ -78,12 +78,15 @@ class Arduino:
                     line = b'temp 18\n'
                 else:
                     line = serial.readline()
-                key, value = line.decode('ascii').strip().split(' ')
-                value = self.from_arduino(key, int(value))
-                self.log_value(key, value)
-                self.state[key] = value
-                self.handle()
-                self.recvq.put((key, value))
+                try:
+                    key, value = line.decode('ascii').strip().split(' ')
+                    value = self.from_arduino(key, int(value))
+                    self.log_value(key, value)
+                    self.state[key] = value
+                    self.handle()
+                    self.recvq.put((key, value))
+                except UnicodeDecodeError:
+                    continue
             except SerialException:
                 if serial is not None:
                     serial.close()
