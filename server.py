@@ -23,6 +23,7 @@ WINDOW_CLOSED_POSITION = 1000
 DOOR_OPEN_POSITION = 0
 DOOR_CLOSED_POSITION = 1000
 WIND_THRESHOLD = 200
+WIND_MEAN_TIME = 10
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
 WEBROOT = os.path.join(ROOT, "webroot")
@@ -36,6 +37,7 @@ class Arduino:
         self.sendq = Queue()
         self.recvq = Queue()
         self.state = {}
+        self.wind_fir = []
 
     def log_filename(self, key):
         return os.path.join(ROOT, 'log', key)
@@ -88,6 +90,10 @@ class Arduino:
             return int(100 * (value - WINDOW_CLOSED_POSITION) / (WINDOW_OPEN_POSITION - WINDOW_CLOSED_POSITION))
         if key == 'door':
             return int(100 * (value - DOOR_CLOSED_POSITION) / (DOOR_OPEN_POSITION - DOOR_CLOSED_POSITION))
+        if key == 'wind':
+            wind_fir.pop(0)
+            wind_fir.append(int(value))
+            return int(numpy.mean(a))
         return int(value)
 
     def to_arduino(self, key, value):
