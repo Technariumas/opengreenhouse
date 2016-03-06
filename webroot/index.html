@@ -19,15 +19,15 @@
       </div>
     </div>
 
-    <div id="Controls">
-    Window control:<input id="windowSlider" type="range" min="0" max="100" step="10" value="0" onchange="setWindow()"/><br>
-    door control:<input id="doorSlider" type="range" min="0" max="100" step="10" value="0" onchange="setDoor()"/><br>
-    Water control:<input id="waterSlider" type="range" min="0" max="100" step="1" value="0" onchange="setWater()"/><br>
-    </div>
 
     <div id="Content">
         <div id="webCamContainer">
           <img id="webCamFrame" src="images/videoPlayer.jpeg">
+        </div>
+        <div id="Controls" style="visibility: hidden;">
+        <strong>Window control:</strong><input id="windowSlider" type="range" min="0" max="100" step="1" value="0" onchange="setWindow()"/><br>
+        <strong>Door control:</strong><input id="doorSlider" type="range" min="0" max="100" step="1" value="0" onchange="setDoor()"/><br>
+        <strong>Water control:</strong><input id="waterSlider" type="range" min="0" max="100" step="1" value="0" onchange="setWater()"/><br>
         </div>
         <div id="TimeSelections" style="visibility: hidden">
             <b>name:</b>
