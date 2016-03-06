@@ -141,7 +141,7 @@ class Arduino:
         log = log[(start <= log.time) & (log.time <= end)]
         value = log.value
         value.index = pandas.to_datetime(log.time, unit='s')
-        if len(value) and resolution is not None:
+        if len(value) and resolution is not None and resolution != 1:
             value = value.resample('{}s'.format(resolution)).dropna()
 
         return {
