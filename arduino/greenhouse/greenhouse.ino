@@ -10,10 +10,9 @@ int winDirPin = 6;
 int winStepPin = 7;
 int pumpPin = 9;
 int timerPeriod = 750; // microseconds
-int timerPeriod = 800; // microseconds
 volatile int windowTarget = 0;
 volatile int windowPosition = 0;
-volatile int doorTarget = -1000;
+volatile int doorTarget = 0;
 volatile int doorPosition = 0;
 
 int pumpTimeLeft = 0;
