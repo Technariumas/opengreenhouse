@@ -39,6 +39,8 @@ class Arduino:
         self.recvq = Queue()
         self.state = {}
         self.wind_fir = []
+        self.window_close = False
+        self.window_prev = 0
 
     def log_filename(self, key):
         return os.path.join(ROOT, 'log', key)
@@ -49,10 +51,13 @@ class Arduino:
 
     def handle(self):
         wind = self.state.get('wind', 0)
-        if wind > WIND_THRESHOLD:
+        if not self.window_close and wind > WIND_THRESHOLD:
+            self.window_close = True
+            self.window_prev = self.state.get('window', 0)
             self.put('window', 0)
-        elif wind < WIND_THRESHOLD / 4 and self.state.get('window', 100) != 100:
-            self.put('window', 100)
+        elif self.window_close and wind < WIND_THRESHOLD / 4:
+            self.window_close = False
+            self.put('window', self.window_prev)
 
     def interact(self):
         serial = None
