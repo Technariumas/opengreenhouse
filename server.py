@@ -41,6 +41,7 @@ class Arduino:
         self.wind_fir = []
         self.window_close = False
         self.window_prev = 0
+        self.door_prev = 0
 
     def log_filename(self, key):
         return os.path.join(ROOT, 'log', key)
@@ -54,10 +55,12 @@ class Arduino:
         if not self.window_close and wind > WIND_THRESHOLD:
             self.window_close = True
             self.window_prev = self.state.get('window', 0)
+            self.door_prev = self.state.get('door', 0)
             self.put('window', 0)
         elif self.window_close and wind < WIND_THRESHOLD / 4:
             self.window_close = False
             self.put('window', self.window_prev)
+            self.put('door', self.door_prev)
 
     def interact(self):
         serial = None
