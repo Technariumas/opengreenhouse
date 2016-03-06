@@ -4,10 +4,14 @@
 #include <SerialCommand.h>
 
 
+int doorEnablePin = 11;
 int doorDirPin = 4;
 int doorStepPin = 5;
+
+int winEnablePin = 10;
 int winDirPin = 6;
 int winStepPin = 7;
+
 int pumpPin = 9;
 int timerPeriod = 750; // microseconds
 volatile int windowTarget = 0;
@@ -86,20 +90,22 @@ unsigned int readI2CRegister16bit(int addr, int reg) {
 
 
 void stepperInterrupt() {
-  int windowDelta = windowTarget - windowPosition;;
+  int windowDelta = windowTarget - windowPosition;
+  digitalWrite(winEnablePin, windowDelta == 0);
   if (digitalRead(winStepPin) == HIGH) {
     digitalWrite(winStepPin, LOW);
   } else if (windowDelta > 0){
-    digitalWrite(winDirPin, LOW); 
+    digitalWrite(winDirPin, HIGH); 
     digitalWrite(winStepPin, HIGH);
     windowPosition++;
   } else if (windowDelta < 0){
-    digitalWrite(winDirPin, HIGH); 
+    digitalWrite(winDirPin, LOW); 
     digitalWrite(winStepPin, HIGH);
     windowPosition--;  
   }
 
-  int doorDelta = doorTarget - doorPosition;;
+  int doorDelta = doorTarget - doorPosition;
+  digitalWrite(doorEnablePin, doorDelta == 0);
   if (digitalRead(doorStepPin) == HIGH) {
     digitalWrite(doorStepPin, LOW);
   } else if (doorDelta > 0){
